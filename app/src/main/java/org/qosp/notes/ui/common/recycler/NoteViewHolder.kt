@@ -97,22 +97,10 @@ class NoteViewHolder(
             return
         }
 
-        val lp = binding.textViewTitle.layoutParams as android.widget.LinearLayout.LayoutParams
         if (note.title.isEmpty() && note.content.isNotEmpty()) {
-            // Keep horizontal weight to push indicators to the right, but collapse vertical height
-            binding.textViewTitle.visibility = android.view.View.INVISIBLE
-            lp.width = 0
-            lp.height = 0
-            lp.weight = 1f
-            binding.textViewTitle.layoutParams = lp
-            binding.textViewTitle.text = ""
-            binding.textViewTitle.includeFontPadding = false
+            binding.textViewTitle.visibility = android.view.View.GONE
         } else {
             binding.textViewTitle.visibility = android.view.View.VISIBLE
-            lp.width = 0
-            lp.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-            lp.weight = 1f
-            binding.textViewTitle.layoutParams = lp
             binding.textViewTitle.text = note.title
         }
     }
