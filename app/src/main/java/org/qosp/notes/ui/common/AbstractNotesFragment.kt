@@ -224,12 +224,19 @@ abstract class AbstractNotesFragment(@LayoutRes resId: Int) : BaseFragment(resId
 
                 when (direction) {
                     ItemTouchHelper.LEFT -> {
-                        activityModel.deleteNotes(note)
-                        viewLifecycleOwner.lifecycleScope.launch {
-                            if (data.noteDeletionTimeInDays == 0L) {
-                                sendMessage(getString(R.string.indicator_deleted_note_permanently))
-                            } else {
-                                sendMessage(getString(R.string.indicator_moved_note_to_bin))
+                        if (note.isDeleted) {
+                            // Note is in bin: restore it
+                            activityModel.restoreNotes(note)
+                            sendMessage(getString(R.string.indicator_restored_note))
+                        } else {
+                            // Note is not deleted: move to bin
+                            activityModel.deleteNotes(note)
+                            viewLifecycleOwner.lifecycleScope.launch {
+                                if (data.noteDeletionTimeInDays == 0L) {
+                                    sendMessage(getString(R.string.indicator_deleted_note_permanently))
+                                } else {
+                                    sendMessage(getString(R.string.indicator_moved_note_to_bin))
+                                }
                             }
                         }
                     }
