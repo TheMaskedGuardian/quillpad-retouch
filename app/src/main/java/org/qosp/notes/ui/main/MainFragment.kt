@@ -114,6 +114,9 @@ open class MainFragment : AbstractNotesFragment(R.layout.fragment_main) {
         setHiddenNotesItemActionText()
         setLayoutChangeActionIcon()
         selectSortMethodItem()
+
+        // Long-press on overflow (three-dots) to scroll to bottom
+        attachOverflowLongPress()
     }
 
     @Deprecated("Deprecated in Java")
@@ -231,6 +234,20 @@ open class MainFragment : AbstractNotesFragment(R.layout.fragment_main) {
                 SortMethod.MODIFIED_DESC -> R.id.action_sort_modified_desc
             }
         )?.isChecked = true
+    }
+
+    private fun attachOverflowLongPress() {
+        val toolbar = binding.layoutAppBar.toolbar
+        toolbar.post {
+            val views = ArrayList<View>()
+            val desc = toolbar.resources.getString(androidx.appcompat.R.string.abc_action_menu_overflow_description)
+            toolbar.findViewsWithText(views, desc, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+            views.firstOrNull()?.setOnLongClickListener {
+                val last = recyclerAdapter.itemCount - 1
+                if (last >= 0) recyclerView.smoothScrollToPosition(last)
+                true
+            }
+        }
     }
 
     private fun setupBottomAppBar() {

@@ -355,6 +355,9 @@ class EditorFragment : BaseFragment(R.layout.fragment_editor) {
 
         // Add long-press scroll-to-top on top bar change-mode action, if visible
         attachChangeModeTopBarLongPress()
+
+        // Add long-press on overflow (three-dots) to scroll to bottom
+        attachOverflowLongPress()
     }
 
     @Deprecated("Deprecated in Java")
@@ -769,6 +772,7 @@ class EditorFragment : BaseFragment(R.layout.fragment_editor) {
 
         // Re-attach long-press handler after visibility/icon updates
         attachChangeModeTopBarLongPress()
+        attachOverflowLongPress()
     }
 
     private fun attachChangeModeTopBarLongPress() {
@@ -777,6 +781,34 @@ class EditorFragment : BaseFragment(R.layout.fragment_editor) {
         view.setOnLongClickListener {
             binding.scrollView.smoothScrollTo(0, 0)
             true
+        }
+    }
+
+    private fun attachOverflowLongPress() {
+        val toolbar = binding.toolbar
+        toolbar.post {
+            val views = ArrayList<View>()
+            val desc = toolbar.resources.getString(androidx.appcompat.R.string.abc_action_menu_overflow_description)
+            toolbar.findViewsWithText(views, desc, View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION)
+            views.firstOrNull()?.setOnLongClickListener {
+                // Always scroll the editor ScrollView to bottom regardless of mode/content
+                scrollEditorToBottomSmooth()
+                true
+            }
+        }
+    }
+
+    private fun scrollEditorToBottomSmooth() {
+        val sv = binding.scrollView
+        sv.post {
+            val content = sv.getChildAt(0)
+            val targetY = (content?.bottom ?: 0) + sv.paddingBottom
+            sv.smoothScrollTo(0, targetY)
+            // Run a second pass shortly after to account for IME or layout settling
+            sv.postDelayed({
+                val newTargetY = (sv.getChildAt(0)?.bottom ?: 0) + sv.paddingBottom
+                sv.smoothScrollTo(0, newTargetY)
+            }, 80)
         }
     }
 
