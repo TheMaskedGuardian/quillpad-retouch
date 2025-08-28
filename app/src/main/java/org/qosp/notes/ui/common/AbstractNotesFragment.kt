@@ -1,6 +1,11 @@
 package org.qosp.notes.ui.common
 
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -9,6 +14,7 @@ import androidx.activity.addCallback
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.core.view.doOnLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.clearFragmentResult
@@ -210,7 +216,14 @@ abstract class AbstractNotesFragment(@LayoutRes resId: Int) : BaseFragment(resId
         }
 
         // Add swipe gestures: LEFT to delete (move to bin), RIGHT to pin/unpin
-        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        ItemTouchHelper(object : ItemTouchHelper.Callback() {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                return makeMovementFlags(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT)
+            }
+
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -247,6 +260,120 @@ abstract class AbstractNotesFragment(@LayoutRes resId: Int) : BaseFragment(resId
 
                 // Reset the swiped item while the list updates from data flow
                 recyclerAdapter.notifyItemChanged(position)
+            }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    val itemView = viewHolder.itemView
+                    val position = viewHolder.bindingAdapterPosition
+                    if (position == RecyclerView.NO_POSITION) return
+                    
+                    val note = recyclerAdapter.getItemAtPosition(position)
+                    val paint = Paint()
+                    val icon: Drawable
+                    val text: String
+                    val backgroundColor: Int
+                    
+                    when {
+                        dX > 0 -> {
+                            // Swiping right - Pin/Unpin
+                            backgroundColor = if (note.isPinned) 
+                                ContextCompat.getColor(requireContext(), R.color.pin_color) 
+                            else 
+                                ContextCompat.getColor(requireContext(), R.color.pin_color)
+                            icon = ContextCompat.getDrawable(requireContext(), 
+                                if (note.isPinned) R.drawable.ic_unpin else R.drawable.ic_pin)!!
+                            text = if (note.isPinned) getString(R.string.action_unpin) else getString(R.string.action_pin)
+                        }
+                        dX < 0 -> {
+                            // Swiping left - Delete/Restore
+                            backgroundColor = if (note.isDeleted) 
+                                ContextCompat.getColor(requireContext(), R.color.restore_color) 
+                            else 
+                                ContextCompat.getColor(requireContext(), R.color.delete_color)
+                            icon = ContextCompat.getDrawable(requireContext(), 
+                                if (note.isDeleted) R.drawable.ic_restore else R.drawable.ic_bin)!!
+                            text = if (note.isDeleted) getString(R.string.action_restore) else getString(R.string.action_delete)
+                        }
+                        else -> return
+                    }
+                    
+                    // Draw rounded background
+                    paint.color = backgroundColor
+                    paint.isAntiAlias = true
+                    
+                    val cornerRadius = resources.getDimensionPixelSize(R.dimen.card_note_corner_radius).toFloat()
+                    val rect = RectF(
+                        itemView.left.toFloat(),
+                        itemView.top.toFloat(),
+                        itemView.right.toFloat(),
+                        itemView.bottom.toFloat()
+                    )
+                    c.drawRoundRect(rect, cornerRadius, cornerRadius, paint)
+                    
+                    // Draw icon and text
+                    val iconSize = resources.getDimensionPixelSize(R.dimen.swipe_icon_size)
+                    val iconMargin = resources.getDimensionPixelSize(R.dimen.swipe_icon_margin)
+                    val textSize = resources.getDimensionPixelSize(R.dimen.swipe_text_size).toFloat()
+                    
+                    if (dX > 0) {
+                        // Right swipe - icon and text on LEFT side (visible when swiping)
+                        val leftX = itemView.left + iconMargin
+                        
+                        // Draw icon first (left side)
+                        icon.setBounds(
+                            leftX.toInt(),
+                            itemView.top + (itemView.height - iconSize) / 2,
+                            (leftX + iconSize).toInt(),
+                            itemView.top + (itemView.height + iconSize) / 2
+                        )
+                        icon.draw(c)
+                        
+                        // Draw text after icon (to the right of icon)
+                        paint.color = Color.WHITE
+                        paint.textSize = textSize
+                        paint.textAlign = Paint.Align.LEFT
+                        paint.isAntiAlias = true
+                        
+                        val textX = leftX + iconSize + 12f // 12dp gap between icon and text
+                        val textY = itemView.top + (itemView.height + paint.textSize) / 2
+                        c.drawText(text, textX, textY, paint)
+                        
+                                         } else {
+                         // Left swipe - text and icon on RIGHT side (visible when swiping)
+                         // Calculate positions so text and icon are side by side
+                         val iconX = itemView.right - iconMargin - iconSize
+                         val textX = iconX - 12f // 12dp gap between text and icon
+                         
+                         // Draw text first (right side, before icon)
+                         paint.color = Color.WHITE
+                         paint.textSize = textSize
+                         paint.textAlign = Paint.Align.RIGHT
+                         paint.isAntiAlias = true
+                         
+                         val textY = itemView.top + (itemView.height + paint.textSize) / 2
+                         c.drawText(text, textX, textY, paint)
+                         
+                         // Draw icon after text (to the left of text)
+                         icon.setBounds(
+                             iconX.toInt(),
+                             itemView.top + (itemView.height - iconSize) / 2,
+                             (iconX + iconSize).toInt(),
+                             itemView.top + (itemView.height + iconSize) / 2
+                         )
+                         icon.draw(c)
+                     }
+                }
+                
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
         }).attachToRecyclerView(recyclerView)
 

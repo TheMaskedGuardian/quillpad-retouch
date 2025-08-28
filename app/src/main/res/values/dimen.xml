@@ -7,4 +7,9 @@
     <dimen name="card_note_title_content_gap">6dp</dimen>
     <dimen name="icon_indicator_empty_size">96dp</dimen>
     <dimen name="app_bar_elevation">0dp</dimen>
+    
+    <!-- Swipe action dimensions -->
+    <dimen name="swipe_icon_size">32dp</dimen>
+    <dimen name="swipe_icon_margin">20dp</dimen>
+    <dimen name="swipe_text_size">16sp</dimen>
 </resources>
