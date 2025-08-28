@@ -352,6 +352,9 @@ class EditorFragment : BaseFragment(R.layout.fragment_editor) {
         lifecycleScope.launch {
             model.data.first().note?.let { setupMenuItems(it, it.reminders.isNotEmpty()) }
         }
+
+        // Add long-press scroll-to-top on top bar change-mode action, if visible
+        attachChangeModeTopBarLongPress()
     }
 
     @Deprecated("Deprecated in Java")
@@ -762,6 +765,18 @@ class EditorFragment : BaseFragment(R.layout.fragment_editor) {
 
         findItem(R.id.action_remove_all_checked_tasks)?.apply {
             isVisible = note.isList && !note.isDeleted
+        }
+
+        // Re-attach long-press handler after visibility/icon updates
+        attachChangeModeTopBarLongPress()
+    }
+
+    private fun attachChangeModeTopBarLongPress() {
+        // When FAB is hidden (TOPBAR mode), allow long-press on toolbar action to scroll to top
+        val view = binding.toolbar.findViewById<View?>(R.id.action_change_mode) ?: return
+        view.setOnLongClickListener {
+            binding.scrollView.smoothScrollTo(0, 0)
+            true
         }
     }
 
