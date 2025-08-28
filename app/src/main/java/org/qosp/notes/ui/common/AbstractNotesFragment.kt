@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -207,6 +208,40 @@ abstract class AbstractNotesFragment(@LayoutRes resId: Int) : BaseFragment(resId
                 }
             })
         }
+
+        // Add swipe gestures: LEFT to delete (move to bin), RIGHT to pin/unpin
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean = false
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.bindingAdapterPosition
+                if (position == RecyclerView.NO_POSITION) return
+                val note = recyclerAdapter.getItemAtPosition(position)
+
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        activityModel.deleteNotes(note)
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            if (data.noteDeletionTimeInDays == 0L) {
+                                sendMessage(getString(R.string.indicator_deleted_note_permanently))
+                            } else {
+                                sendMessage(getString(R.string.indicator_moved_note_to_bin))
+                            }
+                        }
+                    }
+                    ItemTouchHelper.RIGHT -> {
+                        activityModel.pinNotes(note)
+                    }
+                }
+
+                // Reset the swiped item while the list updates from data flow
+                recyclerAdapter.notifyItemChanged(position)
+            }
+        }).attachToRecyclerView(recyclerView)
 
         // Lift app bar during scrolling
         appBarLayout?.let {
