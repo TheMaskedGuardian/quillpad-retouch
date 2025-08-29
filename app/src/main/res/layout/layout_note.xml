@@ -13,13 +13,17 @@
         app:cardElevation="0dp"
         app:cardCornerRadius="@dimen/card_note_corner_radius">
 
-    <LinearLayout
-            android:id="@+id/linear_layout"
+    <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:orientation="vertical"
-            android:background="?attr/colorNoteDefault">
+            android:layout_height="wrap_content">
+
+        <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical"
+                android:background="?attr/colorNoteDefault">
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_attachments"
@@ -141,6 +145,25 @@
                 app:chipSpacingHorizontal="4dp"
                 app:chipSpacingVertical="8dp"/>
 
-    </LinearLayout>
+        </LinearLayout>
+
+        <!-- Overlay pin icon anchored to top-end, independent from text/title layout -->
+        <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/overlay_indicator_pinned"
+                android:layout_width="@dimen/pin_badge_size"
+                android:layout_height="@dimen/pin_badge_size"
+                android:layout_gravity="end|top"
+                android:layout_marginTop="@dimen/card_note_padding"
+                android:layout_marginEnd="@dimen/card_note_padding"
+                android:background="@drawable/bg_pin_badge"
+                android:padding="@dimen/pin_badge_padding"
+                android:src="@drawable/ic_pin"
+                android:tint="?attr/colorOnSecondaryContainer"
+                android:visibility="gone"
+                android:clickable="false"
+                android:focusable="false"
+                style="@style/NoteIcon"/>
+
+    </FrameLayout>
 
 </org.qosp.notes.ui.utils.views.NoteCardView>
