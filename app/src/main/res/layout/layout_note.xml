@@ -147,22 +147,69 @@
 
         </LinearLayout>
 
-        <!-- Overlay pin icon anchored to top-end, independent from text/title layout -->
-        <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/overlay_indicator_pinned"
-                android:layout_width="@dimen/pin_badge_size"
-                android:layout_height="@dimen/pin_badge_size"
+        <!-- Overlay indicator container (top-end) that hosts all status icons with a pill background -->
+        <LinearLayout
+                android:id="@+id/overlay_indicator_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="end|top"
                 android:layout_marginTop="@dimen/card_note_padding"
                 android:layout_marginEnd="@dimen/card_note_padding"
-                android:background="@drawable/bg_pin_badge"
-                android:padding="@dimen/pin_badge_padding"
-                android:src="@drawable/ic_pin"
-                android:tint="?attr/colorOnSecondaryContainer"
-                android:visibility="gone"
-                android:clickable="false"
-                android:focusable="false"
-                style="@style/NoteIcon"/>
+                android:background="@drawable/bg_indicator_pill"
+                android:paddingStart="@dimen/pin_badge_padding"
+                android:paddingEnd="@dimen/pin_badge_padding"
+                android:paddingTop="@dimen/pin_badge_padding"
+                android:paddingBottom="@dimen/pin_badge_padding"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:visibility="gone">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/overlay_indicator_pinned"
+                    android:layout_width="@dimen/card_note_icon_size"
+                    android:layout_height="@dimen/card_note_icon_size"
+                    android:src="@drawable/ic_pin"
+                    android:tint="?attr/colorOnSecondaryContainer"
+                    android:visibility="gone"
+                    style="@style/NoteIcon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/overlay_indicator_has_reminder"
+                    android:layout_width="@dimen/card_note_icon_size"
+                    android:layout_height="@dimen/card_note_icon_size"
+                    android:src="@drawable/ic_bell"
+                    android:tint="?attr/colorOnSecondaryContainer"
+                    android:visibility="gone"
+                    style="@style/NoteIcon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/overlay_indicator_deleted"
+                    android:layout_width="@dimen/card_note_icon_size"
+                    android:layout_height="@dimen/card_note_icon_size"
+                    android:src="@drawable/ic_bin"
+                    android:tint="?attr/colorOnSecondaryContainer"
+                    android:visibility="gone"
+                    style="@style/NoteIcon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/overlay_indicator_archived"
+                    android:layout_width="@dimen/card_note_icon_size"
+                    android:layout_height="@dimen/card_note_icon_size"
+                    android:src="@drawable/ic_archive"
+                    android:tint="?attr/colorOnSecondaryContainer"
+                    android:visibility="gone"
+                    style="@style/NoteIcon"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/overlay_indicator_hidden"
+                    android:layout_width="@dimen/card_note_icon_size"
+                    android:layout_height="@dimen/card_note_icon_size"
+                    android:src="@drawable/ic_hidden"
+                    android:tint="?attr/colorOnSecondaryContainer"
+                    android:visibility="gone"
+                    style="@style/NoteIcon"/>
+
+        </LinearLayout>
 
     </FrameLayout>
 

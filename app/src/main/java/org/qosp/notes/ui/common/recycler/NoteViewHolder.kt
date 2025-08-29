@@ -82,14 +82,26 @@ class NoteViewHolder(
     }
 
     private fun updateIndicatorIcons(note: Note, hasReminders: Boolean) = with(binding) {
-        indicatorNoteHidden.isVisible = note.isHidden && !searchMode
-        // Hide old inline pin indicator to avoid duplicate icons
+        // Hide inline row indicators so we use overlay-only
+        indicatorNoteHidden.isVisible = false
         indicatorPinned.isVisible = false
-        // Show overlay pin icon at top-right when pinned
+        indicatorHasReminder.isVisible = false
+        indicatorDeleted.isVisible = false
+        indicatorArchived.isVisible = false
+
+        // Overlay icons
         overlayIndicatorPinned.isVisible = note.isPinned && !searchMode
-        indicatorHasReminder.isVisible = hasReminders
-        indicatorDeleted.isVisible = note.isDeleted && searchMode
-        indicatorArchived.isVisible = note.isArchived && searchMode
+        overlayIndicatorHasReminder.isVisible = hasReminders
+        overlayIndicatorDeleted.isVisible = note.isDeleted && searchMode
+        overlayIndicatorArchived.isVisible = note.isArchived && searchMode
+        overlayIndicatorHidden.isVisible = note.isHidden && !searchMode
+
+        // Show container only if at least one overlay icon is visible
+        overlayIndicatorContainer.isVisible = overlayIndicatorPinned.isVisible ||
+                overlayIndicatorHasReminder.isVisible ||
+                overlayIndicatorDeleted.isVisible ||
+                overlayIndicatorArchived.isVisible ||
+                overlayIndicatorHidden.isVisible
     }
 
 
